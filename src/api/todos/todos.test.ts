@@ -157,9 +157,7 @@ describe('PUT /api/v1/todos/:id', () => {
 
 describe('DELETE /api/v1/todos/:id', () => {
   it('responds with a single todo, if id IS valid and found', async () =>
-    request(app)
-      .delete(`/api/v1/todos/${id}`)
-      .expect(204));
+    request(app).delete(`/api/v1/todos/${id}`).expect(204));
 
   it('responds with an invalid ObjectId error, if id is not a valid mongodb ObjectId', async () =>
     request(app)
@@ -173,5 +171,11 @@ describe('DELETE /api/v1/todos/:id', () => {
       .delete('/api/v1/todos/6512e3b9d3b779d76edc3d1a')
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
+      .expect(404));
+
+  it('responds with 404 not found, after the previous todo was deleted', async () =>
+    request(app)
+      .get(`/api/v1/todos/${id}`)
+      .set('Accept', 'application/json')
       .expect(404));
 });

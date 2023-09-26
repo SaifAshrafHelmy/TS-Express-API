@@ -9,8 +9,7 @@ export const findAll = async (
   next: NextFunction
 ) => {
   try {
-    const result = await Todos.find();
-    const todos = await result.toArray();
+    const todos = await Todos.find().toArray();
     res.json(todos);
   } catch (error) {
     next(error);
@@ -93,12 +92,12 @@ export const deleteOne = async (
     const result = await Todos.findOneAndDelete({
       _id: new ObjectId(req.params.id),
     });
-    console.log(result)
+    console.log(result);
     if (!result) {
       res.status(404);
       throw new Error(`Todo with id "${req.params.id}" not found.`);
     }
-    res.status(204).end()
+    res.status(204).end();
   } catch (error) {
     next(error);
   }
