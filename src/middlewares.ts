@@ -1,6 +1,28 @@
 import { NextFunction, Request, Response } from 'express';
-
 import ErrorResponse from './interfaces/ErrorResponse';
+import { ZodError } from 'zod';
+import  RequestValidators  from './interfaces/RequestValidators';
+
+
+export function validateRequest(validators: RequestValidators) {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (validators.body) {
+        req.body = await validators.body.parseAsync(req.body);
+      }
+      if (validators.params) {
+        req.params = await validators.params.parseAsync(req.params);
+      }
+      if (validators.query) {
+        req.query = await validators.query.parseAsync(req.query);
+      }
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
 
 export function notFound(req: Request, res: Response, next: NextFunction) {
   res.status(404);
@@ -10,6 +32,10 @@ export function notFound(req: Request, res: Response, next: NextFunction) {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function errorHandler(err: Error, req: Request, res: Response<ErrorResponse>, next: NextFunction) {
+  if (err instanceof ZodError) {
+    res.status(422);
+  }
+  
   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
   res.status(statusCode);
   res.json({
